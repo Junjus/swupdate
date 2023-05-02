@@ -1,0 +1,3 @@
+Tests: testsuite
+Depends: @, build-essential, pkg-config, cpio, openssl, wget, ca-certificates
+Restrictions: allow-stderr

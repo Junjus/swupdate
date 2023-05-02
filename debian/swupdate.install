@@ -1,0 +1,7 @@
+usr/bin/swupdate
+usr/bin/swupdate-client
+usr/bin/swupdate-sendtohawkbit
+usr/bin/swupdate-progress
+usr/bin/swupdate-hawkbitcfg
+usr/bin/swupdate-sysrestart
+debian/swupdate.sh /usr/lib/swupdate

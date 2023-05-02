@@ -1,0 +1,6 @@
+doc/build/man/swupdate.1
+doc/build/man/swupdate-client.1
+doc/build/man/swupdate-sendtohawkbit.1
+doc/build/man/swupdate-hawkbitcfg.1
+doc/build/man/swupdate-progress.1
+doc/build/man/swupdate-sysrestart.1

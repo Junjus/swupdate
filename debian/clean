@@ -1,0 +1,7 @@
+configs/debian_defconfig
+test/test_crypt
+test/test_hash
+test/test_json
+test/test_server_hawkbit
+test/test_*.map
+test/test_*.out

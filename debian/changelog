@@ -1,0 +1,122 @@
+swupdate (2020.11-2) unstable; urgency=medium
+
+  [ Bastian Germann ]
+  * d/clean:
+    - Clean leftover files via dh_clean (Closes: #979806)
+  [ SZ Lin (林上智) ]
+  * d/control:
+    - Bump Standards-Version to 4.5.1
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 19 Jan 2021 15:56:14 +0800
+
+swupdate (2020.11-1) unstable; urgency=medium
+
+  [ Bastian Germann ]
+  * Fix test failed issues on mipsel and mips64el platforms (Closes: #972691)
+  * Drop upstream patch
+  * Add a pkcs11 profile
+  * Mark library packages Multi-Arch: same
+  * Move swupdate-dev to libswupdate-dev
+  * Add libswupdate0.1 package
+  * Add 2020.11 copyright info
+  * Remove unused build dependency
+  * New upstream version 2020.11 (Closes: #976055)
+  * Set CROSS_COMPILE default
+  * Rename config option
+  * Add grub profile and fall back to in memory state
+  * d/copyright: Remove outdated link
+  * d/copyright: Remove unclear OpenSSL exception
+  * Trigger swupdate on usb media only
+  * Disable remote handler
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Mon, 28 Dec 2020 17:07:42 +0800
+
+swupdate (2020.04-2) unstable; urgency=low
+
+  [ Debian Janitor ]
+  * Use secure URI in Homepage field.
+  * Remove obsolete field Name from debian/upstream/metadata (already present in
+    machine-readable debian/copyright).
+
+  [ Bastian Germann ]
+  * Don't run unit tests on mips platforms
+  * lintian: source-is-missing (line length)
+  * Add MTD/UBI support (Closes: #967850)
+  * dh: Rename .tmpfile to .tmpfiles
+  * Introduce a pkg.swupdate.uboot profile
+  * Don't autostart swupdate-usb
+  * d/copyright: Match test_crypt.c only once
+
+  [Nobuhiro Iwamatsu]
+  * Add d/source/lintian-overrides.
+    - Override source: source-is-missing debian/missing-sources/dropzone.js
+
+ -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Thu, 22 Oct 2020 09:02:05 +0900
+
+swupdate (2020.04-1) unstable; urgency=medium
+
+  [ Nobuhiro Iwamatsu ]
+  * Add d/missing-sources
+
+  [ SZ Lin (林上智) ]
+  * Bump Standards-Version to 4.5.0
+  * Bump debhelper-compat to 13
+  * Add configuration setting of Salsa CI
+  * Add a dependency package for CI testing
+  * Fix autopkgtest error
+
+  [ Bastian Germann ]
+  * Fix nodoc usage (Closes: #950772)
+  * Introduce lua package and nolua profile
+  * Remove file filter
+  * defconfig: Activate CONFIG_SIGALG_CMS
+  * defconfig: Set Debian's default grubenv path
+  * defconfig: Save suricatta state in grubenv
+  * defconfig: Enable rdiff handler
+  * defconfig: Enable zstd compression
+  * Update signing key for version 2020.04
+  * Remove upstream patches
+  * lintian: debian-rules-uses-as-needed-linker-flag
+  * d/copyright: suricatta test files were moved
+  * Add new handlers
+  * Enable cross compilation
+  * Add a backports profile
+  * New upstream version 2020.04 (Closes: #948673)
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Sun, 05 Jul 2020 20:01:25 +0800
+
+swupdate (2019.04+git20190903.c3ef374-1~exp1) experimental; urgency=medium
+
+  * Snapshot, taken from the master (20190903). (Closes: #907041)
+    - Change license for Logo.
+  * Update d/copytight
+    - Add license information of SWUpdate.svg.
+  * Update d/control.
+    - Add libwebsockets-dev, liburiparser-dev and libcmocka-dev to B-D.
+
+ -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Tue, 29 Oct 2019 23:46:31 +0900
+
+swupdate (2019.04-1~exp1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+  * Add d/source/lintian-overrides
+  * Update d/swupdate.install
+    - Fix filename to install.
+    - Use dh-exec.
+  * Update d/control
+    - Add dh-exec to B-D
+  * Add d/configs.
+    - Add config for debian. This config file removed MTD.
+
+ -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Tue, 06 Aug 2019 22:54:13 +0900
+
+swupdate (2019.04~rc1+git20190320.bad559b+dfsg-1~exp1) UNRELEASED; urgency=medium
+
+  [ Stefano Babic ]
+  * Initial release
+
+  [ SZ Lin (林上智) ]
+  * Fix copyright issues
+  * Tidy Debian packaging files
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Sun, 21 Apr 2019 18:34:58 +0800

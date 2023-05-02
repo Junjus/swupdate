@@ -1,0 +1,91 @@
+#!/usr/bin/make -f
+include /usr/share/dpkg/architecture.mk
+
+ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+export CROSS_COMPILE ?= $(DEB_HOST_GNU_TYPE)-
+endif
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic -I/usr/include/p11-kit-1
+export LIBDIR=usr/lib/${DEB_HOST_MULTIARCH}
+export HAVE_LUA=n
+ifeq (,$(filter nolua,$(DEB_BUILD_PROFILES)))
+export LUA_VERSION=5.2
+export LUA_MODNAME=lua_swupdate
+export PKG_NAME=swupdate
+export DH_WITH=--with lua
+export HAVE_LUA=y
+endif
+
+override_dh_auto_configure:
+	cp debian/configs/defconfig  configs/debian_defconfig
+ifeq (,$(filter pkg.swupdate.bpo,$(DEB_BUILD_PROFILES)))
+	echo CONFIG_SWUFORWARDER_HANDLER=y >> configs/debian_defconfig
+	echo CONFIG_CFI=y                  >> configs/debian_defconfig
+	echo CONFIG_CFIHAMMING1=y          >> configs/debian_defconfig
+	echo CONFIG_UBIVOL=y               >> configs/debian_defconfig
+	echo CONFIG_SSBLSWITCH=y           >> configs/debian_defconfig
+else
+	echo "# CONFIG_MTD is not set"     >> configs/debian_defconfig
+endif
+ifneq (,$(filter pkg.swupdate.uboot,$(DEB_BUILD_PROFILES)))
+	echo CONFIG_UBOOT=y                             >> configs/debian_defconfig
+else ifneq (,$(filter pkg.swupdate.grub,$(DEB_BUILD_PROFILES)))
+	echo CONFIG_BOOTLOADER_GRUB=y                   >> configs/debian_defconfig
+	echo CONFIG_GRUBENV_PATH=\"/boot/grub/grubenv\" >> configs/debian_defconfig
+else
+	echo CONFIG_BOOTLOADER_NONE=y                   >> configs/debian_defconfig
+endif
+ifneq (,$(filter pkg.swupdate.p11,$(DEB_BUILD_PROFILES)))
+	echo CONFIG_PKCS11=y >> configs/debian_defconfig
+endif
+ifneq (,$(LUA_VERSION))
+	echo CONFIG_LUAPKG=\"lua$(LUA_VERSION)\" >> configs/debian_defconfig
+	echo CONFIG_LUASCRIPTHANDLER=y           >> configs/debian_defconfig
+	echo CONFIG_HANDLER_IN_LUA=y             >> configs/debian_defconfig
+endif
+	echo CONFIG_EXTRA_CFLAGS=\"$(CFLAGS) $(CPPFLAGS)\" >> configs/debian_defconfig
+	echo CONFIG_EXTRA_LDFLAGS=\"$(LDFLAGS)\"           >> configs/debian_defconfig
+	echo CONFIG_EXTRA_LDLIBS=\"$(LDLIBS)\"             >> configs/debian_defconfig
+	$(MAKE) debian_defconfig
+
+
+override_dh_auto_build:
+#ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)))
+#	$(MAKE) man latexpdf
+#	mv doc/build/man/client.1 doc/build/man/swupdate-client.1
+#	mv doc/build/man/sendtohawkbit.1 doc/build/man/swupdate-sendtohawkbit.1
+#	mv doc/build/man/hawkbitcfg.1 doc/build/man/swupdate-hawkbitcfg.1
+#	mv doc/build/man/progress.1 doc/build/man/swupdate-progress.1
+#	mv doc/build/man/sysrestart.1 doc/build/man/swupdate-sysrestart.1
+#endif
+	dh_auto_build -- V=1
+
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)))
+ifeq (,$(findstring mips,$(DEB_HOST_ARCH)))
+	dh_auto_test -- V=1
+endif
+endif
+
+override_dh_auto_install:
+	dh_auto_install -- V=1
+
+override_dh_installsystemd:
+	dh_installsystemd --no-start
+	dh_installsystemd --name=swupdate-progress
+	dh_installsystemd --no-start --name=swupdate-usb@
+
+ifeq (,$(filter pkg.swupdate.bpo,$(DEB_BUILD_PROFILES)))
+override_dh_gencontrol:
+	dh_gencontrol -- -VBuilt-Using="$(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libmtd-dev libubi-dev)"
+endif
+
+override_dh_dwz:
+	dh_dwz --no-dwz-multifile
+
+override_dh_missing:
+	dh_missing --fail-missing
+
+%:
+	dh $@ $(DH_WITH)
