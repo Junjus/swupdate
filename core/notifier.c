@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -30,7 +29,7 @@
 #endif
 
 /*
- * There is a list of notifiers. Each registered
+ * There is a list of notifier. Each registered
  * notifier will receive the notification
  * and can process it.
  */
@@ -188,7 +187,7 @@ void notifier_set_color(int level, char *col)
 }
 
 /*
- * This allows one to extend the list of notifiers.
+ * This allows to extend the list of notifier.
  * One can register a new notifier and it will
  * receive any notification that is sent via
  * the notify() call
@@ -493,7 +492,7 @@ void notify_init(void)
 	if (sd_booted() && getenv("JOURNAL_STREAM") != NULL) {
 		dev_t device;
 		ino_t inode;
-		if (sscanf(getenv("JOURNAL_STREAM"), "%" SCNu64 ":%lu", &device, &inode) == 2) {
+		if (sscanf(getenv("JOURNAL_STREAM"), "%lu:%lu", &device, &inode) == 2) {
 			struct stat statbuffer;
 			if (fstat(fileno(stderr), &statbuffer) == 0) {
 				if (inode == statbuffer.st_ino && device == statbuffer.st_dev) {

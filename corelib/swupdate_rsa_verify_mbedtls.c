@@ -38,7 +38,7 @@ static int read_file_into_buffer(uint8_t *buffer, int size, const char *filename
 	result = 0;
 
 exit:
-	close(fd);
+	fclose(fd);
 	return result;
 }
 

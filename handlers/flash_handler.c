@@ -308,14 +308,9 @@ static int flash_write_nor(int mtdnum, struct img_type *img)
 		return -ENODEV;
 	}
 
-	long long size = get_output_size(img, true);
-	if (size < 0) {
-		ERROR("Failed to determine output size, bailing out.");
-		return -1;
-	}
-	if (flash_erase_sector(mtdnum, img->seek, size)) {
-		ERROR("Failed to erase sectors on /dev/mtd%d (start: %llu, size: %lld)",
-			mtdnum, img->seek, size);
+	if(flash_erase_sector(mtdnum, img->seek, img->size)) {
+		ERROR("I cannot erasing %s",
+			img->device);
 		return -1;
 	}
 

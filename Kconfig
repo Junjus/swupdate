@@ -53,14 +53,6 @@ config HAVE_LIBUBI
 	bool
 	option env="HAVE_LIBUBI"
 
-config HAVE_LIBUBOOTENV
-	bool
-	option env="HAVE_LIBUBOOTENV"
-
-config HAVE_LIBEBGENV
-       bool
-       option env="HAVE_LIBEBGENV"
-
 config HAVE_LIBEXT2FS
 	bool
 	option env="HAVE_LIBEXT2FS"
@@ -193,18 +185,18 @@ config SW_VERSIONS_FILE
 	help
 	  This is an optional file that is scanned at the
 	  beginning to read the installed versions of
-	  all sw-components. Each entry in the file is
+	  all sw-components. Each entry in the file is a
 	  a pair of "name version".
 	  In sw-description,  an image can have the
 	  optional attributes:
 		"name" : key for searching in SW_VERSIONS_FILE
 		"version" : version contained in the .swu
-		"install-if-different" : if set, the version
-			is compared with the one in SW_VERSIONS_FILE.
+		"install-if-different" : if set, version
+	  		is compared with the one in SW_VERSIONS_FILE.
 	  The image is installed only if there is a version mismatch.
-	  This reduces the risk in case of components that are not
-	  safe to update, such as the bootloader. Updating it is a risk,
-	  but in some cases it is required to do it. Having a check,
+	  This lets reduce risks in case of components that are not
+	  safe to be updated, such as the bootloader. Updating it is a risk,
+	  but in some cases it can be required to do it. Having a check,
 	  the risky-component is not always updated.
 
 menu "Socket Paths"
@@ -224,7 +216,7 @@ config SOCKET_NOTIFIER_DIRECTORY
 	depends on HAVE_FREEBSD
 	default "/tmp/"
 	help
-	  Path to SWUpdate's notifier sockets on FreeBSD as
+	  Path to SWUpdate's Notifier sockets on FreeBSD as
 	  Linux-like abstract sockets are not available.
 
 endmenu
@@ -415,8 +407,6 @@ choice
 	config SSL_IMPL_WOLFSSL
 		bool "wolfSSL (with OpenSSL compatibility layer)"
 		depends on HAVE_WOLFSSL
-		select CMS_IGNORE_CERTIFICATE_PURPOSE
-		select CMS_SKIP_UNKNOWN_SIGNERS
 
 	config SSL_IMPL_MBEDTLS
 		bool "mbedTLS"
@@ -453,10 +443,7 @@ choice
 	default SIGALG_RAWRSA
 	help
 	  Select if the signature algorithm for signed images is a raw RSA signature
-	  (following PKCS#1.5) or if it uses Cryptographic Message Syntax (CMS) with
-	  OpenSSL/LibreSSL or PKCS#7 with wolfSSL.
-	  wolfSSL's PKCS#7 implementation can only deal with one signature and cannot
-	  deal with X509 purposes.
+	  (following PKCS#1.5) or if it uses Cryptographic Message Syntax (CMS).
 
 	config SIGALG_RAWRSA
 		bool "RSA PKCS#1.5"
@@ -465,12 +452,12 @@ choice
 		bool "RSA PSS"
 
 	config SIGALG_CMS
-		bool "Cryptographic Message Syntax (CMS) / PKCS#7"
-		depends on SSL_IMPL_OPENSSL || SSL_IMPL_WOLFSSL
+		bool "Cryptographic Message Syntax (CMS)"
+		depends on SSL_IMPL_OPENSSL
 
 endchoice
 
-menu "CMS / PKCS#7 signature verification options"
+menu "CMS signature verification options"
 	depends on SIGALG_CMS
 
 config CMS_IGNORE_EXPIRED_CERTIFICATE

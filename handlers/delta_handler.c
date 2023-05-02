@@ -37,7 +37,6 @@
 #include <pctl.h>
 #include <pthread.h>
 #include <fs_interface.h>
-#include <sys/mman.h>
 #include "delta_handler.h"
 #include "multipart_parser.h"
 #include "installer.h"
@@ -841,7 +840,7 @@ static int install_delta(struct img_type *img,
 {
 	struct hnd_priv *priv;
 	int ret = -1;
-	int dst_fd = -1, in_fd = -1, mem_fd = -1;
+	int dst_fd = -1, in_fd = -1;
 	zckChunk *iter;
 	zckCtx *zckSrc = NULL, *zckDst = NULL;
 	char *FIFO = NULL;
@@ -966,37 +965,7 @@ static int install_delta(struct img_type *img,
 			zck_get_error(zckSrc));
 		goto cleanup;
 	}
-
-	mem_fd = memfd_create("zchunk header", 0);
-	if (mem_fd == -1) {
-		ERROR("Cannot create memory file: %s", strerror(errno));
-		goto cleanup;
-	}
-
-	ret = copyfile(img->fdin,
-		&mem_fd,
-		img->size,
-		(unsigned long *)&img->offset,
-		img->seek,
-		0,
-		img->compressed,
-		&img->checksum,
-		img->sha256,
-		img->is_encrypted,
-		img->ivt_ascii,
-		NULL);
-
-	if (ret != 0) {
-		ERROR("Error %d copying zchunk header, aborting.", ret);
-		goto cleanup;
-	}
-
-	if (lseek(mem_fd, 0, SEEK_SET) < 0) {
-		ERROR("Seeking start of memory file");
-		goto cleanup;
-	}
-
-	if (!zck_init_read(zckDst, mem_fd)) {
+	if (!zck_init_read(zckDst, img->fdin)) {
 		ERROR("Unable to read ZCK header from %s : %s",
 			img->fname,
 			zck_get_error(zckDst));
@@ -1020,9 +989,6 @@ static int install_delta(struct img_type *img,
 	if (!zck_set_ioption(zckSrc, ZCK_HASH_CHUNK_TYPE, ZCK_HASH_SHA256)) {
 		ERROR("Error setting HASH Type %s\n", zck_get_error(zckSrc));
 		goto cleanup;
-	}
-	if (!zck_set_ioption(zckSrc, ZCK_NO_WRITE, 1)) {
-		WARN("ZCK does not support NO Write, use huge amount of RAM %s\n", zck_get_error(zckSrc));
 	}
 
 	if (!create_zckindex(zckSrc, in_fd, priv->srcsize)) {
@@ -1051,8 +1017,6 @@ static int install_delta(struct img_type *img,
 	memset(priv_hnd->img.sha256, 0, SHA256_HASH_LENGTH);
 	strlcpy(priv_hnd->img.type, priv->chainhandler, sizeof(priv_hnd->img.type));
 	priv_hnd->img.fdin = pipes[PIPE_READ];
-	/* zchunk files are not encrypted, CBC is not suitable for range download */
-	priv_hnd->img.is_encrypted = false;
 
 	signal(SIGPIPE, SIG_IGN);
 
@@ -1095,9 +1059,8 @@ static int install_delta(struct img_type *img,
 cleanup:
 	if (zckSrc) zck_free(&zckSrc);
 	if (zckDst) zck_free(&zckDst);
-	if (dst_fd >= 0) close(dst_fd);
-	if (in_fd >= 0) close(in_fd);
-	if (mem_fd >= 0) close(mem_fd);
+	close(dst_fd);
+	close(in_fd);
 	if (FIFO) {
 		unlink(FIFO);
 		free(FIFO);

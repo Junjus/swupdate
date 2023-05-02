@@ -68,10 +68,8 @@ tests:
 	@:
 endif
 
-$(objtree)/core/built-in.o.tmp: $(objtree)/core/built-in.o
+$(obj)/%.lnk: $(obj)/%.o $(objtree)/core/built-in.o
 	$(Q)$(STRIP) -N main -o $(objtree)/core/built-in.o.tmp $(objtree)/core/built-in.o
-
-$(obj)/%.lnk: $(obj)/%.o $(objtree)/core/built-in.o.tmp
 	$(Q)$(call cmd,linktestexe)
 
 DATADIR := test/data

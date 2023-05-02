@@ -2,7 +2,6 @@
 
 set -e
 
-ln -s /usr/bin/swupdate swupdate
 cp debian/configs/defconfig configs/debian_defconfig
 make debian_defconfig
 make acceptance-tests

@@ -33,10 +33,6 @@
 #include "mongoose_multipart.h"
 #include "util.h"
 
-#ifndef MG_ENABLE_SSL
-#define MG_ENABLE_SSL 0
-#endif
-
 #define MG_PORT "8080"
 #define MG_ROOT "."
 
@@ -362,7 +358,7 @@ static void broadcast_callback(struct mg_connection *nc, int ev,
 	if (ev == MG_EV_READ) {
 		struct mg_connection *t;
 		for (t = nc->mgr->conns; t != NULL; t = t->next) {
-			if (t->data[0] != 'W') continue;
+			if (t->label[0] != 'W') continue;
 			mg_ws_send(t,(char *)nc->recv.buf, nc->recv.len, WEBSOCKET_OP_TEXT);
 		}
 		mg_iobuf_del(&nc->recv, 0, nc->recv.len);
@@ -539,7 +535,7 @@ static void timer_ev_handler(void *fn_data)
 	if (fus && (watchdog_conn > 0) &&
 		(mg_millis() - fus->last_io_time > (watchdog_conn * 1000))) {
 		/* Connection lost, drop data */
-		ERROR("Connection lost, no data for %" PRId64 " seconds, closing...",
+		ERROR("Connection lost, no data for %ld seconds, closing...",
 			  (mg_millis() - fus->last_io_time) / 1000);
 		mg_http_reply(fus->c, 408, "", "%s", "Request Timeout\n");
 		fus->c->is_draining = 1;
@@ -670,12 +666,12 @@ static void websocket_handler(struct mg_connection *nc, void *ev_data)
 {
 	struct mg_http_message *hm = (struct mg_http_message *) ev_data;
 	mg_ws_upgrade(nc, hm, NULL);
-	nc->data[0] = 'W';
+	nc->label[0] = 'W';
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data)
 {
-	if (nc->data[0] != 'M' && ev == MG_EV_HTTP_MSG) {
+	if (nc->label[0] != 'M' && ev == MG_EV_HTTP_MSG) {
 		struct mg_http_message *hm = (struct mg_http_message *) ev_data;
 		if (!mg_http_is_authorized(hm, global_auth_domain, global_auth_file))
 			mg_http_send_digest_auth_request(nc, global_auth_domain);
@@ -685,7 +681,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 			restart_handler(nc, ev_data);
 		else
 			mg_http_serve_dir(nc, ev_data, &s_http_server_opts);
-	} else if (nc->data[0] != 'M' && ev == MG_EV_READ) {
+	} else if (nc->label[0] != 'M' && ev == MG_EV_READ) {
 		struct mg_http_message hm;
 		int hlen = mg_http_parse((char *) nc->recv.buf, nc->recv.len, &hm);
 		if (hlen > 0) {
@@ -702,7 +698,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 				}
 			}
 		}
-	} else if (nc->data[0] == 'M' && (ev == MG_EV_READ || ev == MG_EV_POLL || ev == MG_EV_CLOSE)) {
+	} else if (nc->label[0] == 'M' && (ev == MG_EV_READ || ev == MG_EV_POLL || ev == MG_EV_CLOSE)) {
 		if (nc->recv.len >= MG_MAX_RECV_SIZE && ev == MG_EV_READ)
 			nc->is_full = true;
 		multipart_upload_handler(nc, ev, ev_data, fn_data);
@@ -804,7 +800,7 @@ int start_mongoose(const char *cfgfname, int argc, char *argv[])
 	struct mg_mgr mgr;
 	struct mg_connection *nc;
 	char *url = NULL;
-	char buf[50] = "\0";
+	char buf[50];
 	int choice;
 
 #if MG_ENABLE_SSL
@@ -927,9 +923,9 @@ int start_mongoose(const char *cfgfname, int argc, char *argv[])
 	start_thread(broadcast_message_thread, NULL);
 	start_thread(broadcast_progress_thread, NULL);
 
-	mg_snprintf(buf, sizeof(buf), "%I", 4, &nc->loc);
 	INFO("Mongoose web server version %s with pid %d started on [%s] with web root [%s]",
-		MG_VERSION, getpid(), buf, s_http_server_opts.root_dir);
+		MG_VERSION, getpid(), mg_straddr(&nc->loc, buf, sizeof(buf)),
+		s_http_server_opts.root_dir);
 
 	while (s_signo == 0)
 		mg_mgr_poll(&mgr, 100);

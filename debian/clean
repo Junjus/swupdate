@@ -3,5 +3,8 @@ test/test_crypt
 test/test_hash
 test/test_json
 test/test_server_hawkbit
+test/test_util
 test/test_*.map
 test/test_*.out
+web-app/css/bootstrap.css
+web-app/node_modules/

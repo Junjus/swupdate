@@ -1,3 +1,139 @@
+swupdate (2022.12+dfsg-4) unstable; urgency=medium
+
+  * Enable backported libebgenv-dev
+  * Revert "d/configs/defconfig: Add CONFIG_SURICATTA_LUA" (Closes: #1033943)
+  * Introduce a pkg.swupdate.noswuforwarder profile
+
+ -- Bastian Germann <bage@debian.org>  Tue, 04 Apr 2023 15:36:06 +0200
+
+swupdate (2022.12+dfsg-3) unstable; urgency=high
+
+  * Recover the pkcs11 build profile pkg.swupdate.p11
+
+ -- Bastian Germann <bage@debian.org>  Sun, 12 Feb 2023 13:50:34 +0100
+
+swupdate (2022.12+dfsg-2) unstable; urgency=medium
+
+  * Remove the pkcs11 build profile pkg.swupdate.p11
+  * Fix Built-Using after swupdate-www's introduction
+
+  [ Quirin Gylstorff ]
+  * d/configs/defconfig: Add CONFIG_SURICATTA_LUA
+  * d/configs/defconfig: Add CONFIG_CMS_SKIP_UNKOWN_SIGNERS
+
+ -- Bastian Germann <bage@debian.org>  Tue, 10 Jan 2023 01:54:24 +0100
+
+swupdate (2022.12+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 2022.12
+  * Add replace rule from gulp's minify-html
+  * Make Build-Depends cross-installable
+  * Add Built-Using for swupdate-www
+  * Patch: Link config to swupdate-www path
+  * Drop unneeded patch
+  * Add B-D graphviz
+  * d/copyright: Amend with new version's info
+  * Fix lintian notices
+
+ -- Bastian Germann <bage@debian.org>  Tue, 13 Dec 2022 23:56:54 +0100
+
+swupdate (2022.05+dfsg-1) experimental; urgency=medium
+
+  * Add lintian error overrides
+  * Fix lintian: globbing-patterns-out-of-order
+  * Add swupdate-www
+  * Clean test_util so package can be rebuilt
+  * Drop missing-sources and built web-app's copyright
+  * Repack the source
+
+  [ Debian Janitor ]
+  * Apply multi-arch hints. + swupdate-doc: Add Multi-Arch: foreign.
+
+ -- Bastian Germann <bage@debian.org>  Fri, 25 Nov 2022 02:15:31 +0100
+
+swupdate (2022.05-2) unstable; urgency=medium
+
+  * Enable Delta for bookworm
+  * Enable UCFW handler
+  * Enable CONFIG_UBOOT only for Linux
+  * d/copyright: Fix lintian warnings
+  * Fix lintian: spelling-error-in-readme-debian
+  * Enable efibootguard by default
+  * Synchronize missing full JavaScript sources
+
+ -- Bastian Germann <bage@debian.org>  Fri, 30 Sep 2022 02:05:08 +0200
+
+swupdate (2022.05-1) unstable; urgency=high
+
+  * New upstream version 2022.05
+  * d/copyright: Update to new version
+  * d/changelog: Remove unreleased package revisions
+  * Enable runtime u-boot/grub handling
+  * Add docs for Debian package's features
+
+  [ Quirin Gylstorff ]
+  * Set CONFIG_HASH_VERIFY explicitly
+  * Make CONFIG_HW_COMPATIBILTY optional
+  * Move scripts to update from USB Stick to examples
+
+ -- Bastian Germann <bage@debian.org>  Sat, 14 May 2022 18:27:34 +0200
+
+swupdate (2021.11-1) unstable; urgency=medium
+
+  * Add option to build with efibootguard
+  * New upstream version 2021.11
+  * Drop old and add new executables/manpages
+  * Add new library symbols
+  * Get conditional alternative build deps right
+  * d/copyright: Amend with info from .reuse/dep5
+  * d/copyright: Add missing license OFL-1.1
+  * d/copyright: Amend with new version's changes
+  * Enable diskformat handler and diskpart extension
+
+ -- Bastian Germann <bage@debian.org>  Fri, 10 Dec 2021 23:55:38 +0100
+
+swupdate (2021.04-2) unstable; urgency=medium
+
+  * Update lua version to non-orphaned 5.3
+  * Fix source-is-missing
+  * Allow cross build with sphinx
+  * Set bage as Maintainer (Closes: #1000211)
+
+  [ Quirin Gylstorff ]
+  * debian/config: Make signing optional
+
+ -- Bastian Germann <bage@debian.org>  Mon, 22 Nov 2021 09:27:22 +0100
+
+swupdate (2021.04-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload
+  * Remove deprecated Salsa CI config
+  * latexmk without :native is alternative build dependency (Closes: #997473)
+  * Add tex-gyre build dependency
+
+ -- Bastian Germann <bage@debian.org>  Sun, 24 Oct 2021 13:34:27 +0200
+
+swupdate (2021.04-1) unstable; urgency=medium
+
+  [ Bastian Germann ]
+  * Add diskformat and uuid handlers
+  * Add new symbol swupdate_set_version_range
+  * d/control:
+    - Fix cross builds issue by adding arch-independent build deps
+      (Closes: #983045)
+  * d/copyright:
+    - Provide more accurate info.
+
+  [ SZ Lin (林上智) ]
+  * Import new upstream release (Closes: #987905)
+  * Fix the content of the override file
+  * d/control:
+    - Bump Standards-Version to 4.6.0.1
+  * d/tests/testsuite:
+    - Remove unneeded symbolic link
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Wed, 15 Sep 2021 22:44:59 +0800
+
 swupdate (2020.11-2) unstable; urgency=medium
 
   [ Bastian Germann ]
@@ -95,28 +231,3 @@ swupdate (2019.04+git20190903.c3ef374-1~exp1) experimental; urgency=medium
     - Add libwebsockets-dev, liburiparser-dev and libcmocka-dev to B-D.
 
  -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Tue, 29 Oct 2019 23:46:31 +0900
-
-swupdate (2019.04-1~exp1) UNRELEASED; urgency=medium
-
-  * New upstream release.
-  * Add d/source/lintian-overrides
-  * Update d/swupdate.install
-    - Fix filename to install.
-    - Use dh-exec.
-  * Update d/control
-    - Add dh-exec to B-D
-  * Add d/configs.
-    - Add config for debian. This config file removed MTD.
-
- -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Tue, 06 Aug 2019 22:54:13 +0900
-
-swupdate (2019.04~rc1+git20190320.bad559b+dfsg-1~exp1) UNRELEASED; urgency=medium
-
-  [ Stefano Babic ]
-  * Initial release
-
-  [ SZ Lin (林上智) ]
-  * Fix copyright issues
-  * Tidy Debian packaging files
-
- -- SZ Lin (林上智) <szlin@debian.org>  Sun, 21 Apr 2019 18:34:58 +0800

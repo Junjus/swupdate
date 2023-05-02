@@ -8,6 +8,8 @@ libswupdate.so.0.1 libswupdate0.1 #MINVER#
  ipc_get_status_timeout@Base 2020.11
  ipc_inst_start@Base 2020.11
  ipc_inst_start_ext@Base 2020.11
+ ipc_notify_connect@Base 2021.11
+ ipc_notify_receive@Base 2021.11
  ipc_postupdate@Base 2020.11
  ipc_send_cmd@Base 2020.11
  ipc_send_data@Base 2020.11
@@ -19,3 +21,4 @@ libswupdate.so.0.1 libswupdate0.1 #MINVER#
  swupdate_image_write@Base 2020.11
  swupdate_prepare_req@Base 2020.11
  swupdate_set_aes@Base 2020.11
+ swupdate_set_version_range@Base 2021.04

@@ -10,17 +10,27 @@ export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic -I/usr/include/p11-kit-1
 export LIBDIR=usr/lib/${DEB_HOST_MULTIARCH}
 export HAVE_LUA=n
 ifeq (,$(filter nolua,$(DEB_BUILD_PROFILES)))
-export LUA_VERSION=5.2
+export LUA_VERSION=5.3
 export LUA_MODNAME=lua_swupdate
 export PKG_NAME=swupdate
 export DH_WITH=--with lua
 export HAVE_LUA=y
 endif
 
+BU_SWU=
+ifeq (linux,$(DEB_HOST_ARCH_OS))
+	BU_SWU += -VBuilt-Using="$(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libmtd-dev libubi-dev)"
+endif
+ifeq (,$(filter pkg.swupdate.bpo,$(DEB_BUILD_PROFILES)))
+	# Bootstrap's scss file is derived from
+	BU_SWU += -VB-U-www="$(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libjs-bootstrap4)"
+endif
+
 override_dh_auto_configure:
 	cp debian/configs/defconfig  configs/debian_defconfig
-ifeq (,$(filter pkg.swupdate.bpo,$(DEB_BUILD_PROFILES)))
-	echo CONFIG_SWUFORWARDER_HANDLER=y >> configs/debian_defconfig
+ifeq (linux,$(DEB_HOST_ARCH_OS))
+	echo CONFIG_UBOOT=y                >> configs/debian_defconfig
+	echo CONFIG_UCFWHANDLER=y          >> configs/debian_defconfig
 	echo CONFIG_CFI=y                  >> configs/debian_defconfig
 	echo CONFIG_CFIHAMMING1=y          >> configs/debian_defconfig
 	echo CONFIG_UBIVOL=y               >> configs/debian_defconfig
@@ -28,13 +38,20 @@ ifeq (,$(filter pkg.swupdate.bpo,$(DEB_BUILD_PROFILES)))
 else
 	echo "# CONFIG_MTD is not set"     >> configs/debian_defconfig
 endif
-ifneq (,$(filter pkg.swupdate.uboot,$(DEB_BUILD_PROFILES)))
-	echo CONFIG_UBOOT=y                             >> configs/debian_defconfig
-else ifneq (,$(filter pkg.swupdate.grub,$(DEB_BUILD_PROFILES)))
-	echo CONFIG_BOOTLOADER_GRUB=y                   >> configs/debian_defconfig
-	echo CONFIG_GRUBENV_PATH=\"/boot/grub/grubenv\" >> configs/debian_defconfig
-else
-	echo CONFIG_BOOTLOADER_NONE=y                   >> configs/debian_defconfig
+ifeq (,$(filter pkg.swupdate.bpo,$(DEB_BUILD_PROFILES)))
+	echo CONFIG_DELTA=y >> configs/debian_defconfig
+endif
+ifneq (,$(findstring $(DEB_HOST_ARCH),amd64 i386 arm64 armhf riscv64 ia64))
+	echo CONFIG_BOOTLOADER_EBG=y                    >> configs/debian_defconfig
+endif
+ifeq (,$(filter pkg.swupdate.nohwcompat,$(DEB_BUILD_PROFILES)))
+	echo CONFIG_HW_COMPATIBILITY=y                   >> configs/debian_defconfig
+endif
+ifeq (,$(filter pkg.swupdate.nosigning,$(DEB_BUILD_PROFILES)))
+	echo CONFIG_SIGNED_IMAGES=y >> configs/debian_defconfig
+endif
+ifeq (,$(filter pkg.swupdate.noswuforwarder,$(DEB_BUILD_PROFILES)))
+	echo CONFIG_SWUFORWARDER_HANDLER=y       >> configs/debian_defconfig
 endif
 ifneq (,$(filter pkg.swupdate.p11,$(DEB_BUILD_PROFILES)))
 	echo CONFIG_PKCS11=y >> configs/debian_defconfig
@@ -49,17 +66,22 @@ endif
 	echo CONFIG_EXTRA_LDLIBS=\"$(LDLIBS)\"             >> configs/debian_defconfig
 	$(MAKE) debian_defconfig
 
-
 override_dh_auto_build:
-#ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)))
-#	$(MAKE) man latexpdf
-#	mv doc/build/man/client.1 doc/build/man/swupdate-client.1
-#	mv doc/build/man/sendtohawkbit.1 doc/build/man/swupdate-sendtohawkbit.1
-#	mv doc/build/man/hawkbitcfg.1 doc/build/man/swupdate-hawkbitcfg.1
-#	mv doc/build/man/progress.1 doc/build/man/swupdate-progress.1
-#	mv doc/build/man/sysrestart.1 doc/build/man/swupdate-sysrestart.1
-#endif
+ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)))
+	$(MAKE) man latexpdf
+	mv doc/build/man/client.1 doc/build/man/swupdate-client.1
+	mv doc/build/man/ipc.1 doc/build/man/swupdate-ipc.1
+	mv doc/build/man/progress.1 doc/build/man/swupdate-progress.1
+endif
 	dh_auto_build -- V=1
+
+	# Build web-app without gulp
+	cd web-app && pkgjs-install-minimal
+ifeq (,$(filter pkg.swupdate.bpo,$(DEB_BUILD_PROFILES)))
+	sassc -Iweb-app web-app/scss/bootstrap.scss > web-app/css/bootstrap.css
+	# replace rule from gulp's minify-html
+	sed -i 's|node_modules/bootstrap/dist/css|css|' web-app/index.html
+endif
 
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)))
@@ -76,10 +98,8 @@ override_dh_installsystemd:
 	dh_installsystemd --name=swupdate-progress
 	dh_installsystemd --no-start --name=swupdate-usb@
 
-ifeq (,$(filter pkg.swupdate.bpo,$(DEB_BUILD_PROFILES)))
 override_dh_gencontrol:
-	dh_gencontrol -- -VBuilt-Using="$(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libmtd-dev libubi-dev)"
-endif
+	dh_gencontrol -- $(BU_SWU)
 
 override_dh_dwz:
 	dh_dwz --no-dwz-multifile

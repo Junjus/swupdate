@@ -532,7 +532,7 @@ static channel_op_res_t channel_set_content_type(channel_t *this,
 		    asprintf(&accept, "Accept: %s",
 			    content)) {
 			result = CHANNEL_EINIT;
-			ERROR("OOM when setting Accept.");
+			ERROR("OOM when setting Content-type.");
 	}
 
 	if (result == CHANNEL_OK) {
@@ -606,36 +606,6 @@ channel_op_res_t channel_set_options(channel_t *this, channel_data_t *channel_da
 		result = CHANNEL_EINIT;
 		goto cleanup;
 	}
-
-	/* Check if sslkey or sslcert strings contains a pkcs11 URI
-	 * and set curl engine and types accordingly
-	 */
-	bool keyUri = channel_data->sslkey ? strncasecmp(channel_data->sslkey, "pkcs11:", 7) == 0 : false;
-	bool certUri = channel_data->sslkey ? strncasecmp(channel_data->sslcert, "pkcs11:", 7) == 0 : false;
-
-	if (keyUri || certUri) {
-		if (curl_easy_setopt(channel_curl->handle, CURLOPT_SSLENGINE, "pkcs11") != CURLE_OK) {
-			ERROR("Error %d setting CURLOPT_SSLENGINE", result);
-			result = CHANNEL_EINIT;
-			goto cleanup;
-		}
-
-		if (keyUri) {
-			if (curl_easy_setopt(channel_curl->handle, CURLOPT_SSLKEYTYPE, "ENG") != CURLE_OK) {
-				ERROR("Error %d setting CURLOPT_SSLKEYTYPE", result);
-				result = CHANNEL_EINIT;
-				goto cleanup;
-			}
-		}
-
-		if (certUri) {
-			if (curl_easy_setopt(channel_curl->handle, CURLOPT_SSLCERTTYPE, "ENG") != CURLE_OK) {
-				ERROR("Error %d setting CURLOPT_SSLCERTTYPE", result);
-				result = CHANNEL_EINIT;
-				goto cleanup;
-			}
-		}
-        }
 
 	/* Only use cafile when set, otherwise let curl use
 	 * the default system location for cacert bundle
@@ -1201,7 +1171,7 @@ channel_op_res_t channel_get_file(channel_t *this, void *data)
 			WARN("Failed to get total download size for URL %s.",
 				channel_data->url);
 	} else
-		INFO("Total download size is %" CURL_FORMAT_CURL_OFF_TU " kB.",
+		INFO("Total download size is %lu kB.",
 			download_data.total_download_size / 1024);
 
 	}

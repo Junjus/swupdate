@@ -153,7 +153,6 @@ int swupdate_dgst_init(struct swupdate_cfg *sw, const char *keyfile)
 		goto dgst_init_error;
 	}
 
-#ifndef CONFIG_CMS_IGNORE_CERTIFICATE_PURPOSE
 	{
 		static char code_sign_name[] = "Code signing";
 		static char code_sign_sname[] = "codesign";
@@ -172,8 +171,6 @@ int swupdate_dgst_init(struct swupdate_cfg *sw, const char *keyfile)
 		ret = -EINVAL;
 		goto dgst_init_error;
 	}
-#endif
-
 #else
 	TRACE("public key / cert %s ignored, you need to set SIGALG", keyfile);
 #endif

@@ -11,7 +11,6 @@
 #include <handler.h>
 #include <blkid/blkid.h>
 #include <fs_interface.h>
-#include "progress.h"
 
 void diskformat_handler(void);
 
@@ -52,12 +51,6 @@ static int diskformat(struct img_type *img,
 
 	/* File system does not exist, create new file system */
 	ret = diskformat_mkfs(img->device, fstype);
-
-	/*
-	 * Declare that handler has finished
-	 */
-	swupdate_progress_update(100);
-
 	return ret;
 }
 

@@ -1,0 +1,8 @@
+#
+# This udev rule is triggered on plugin of a USB media.
+#
+# Install the rule by coping this file to /etc/udev/rules.d/swupdate.rules
+# to activate SWUpdate on USB plugin.
+#
+ACTION=="add", KERNEL=="sd*", SUBSYSTEM=="block", ENV{ID_BUS}=="usb", ENV{ID_FS_USAGE}=="filesystem", TAG+="systemd", ENV{SYSTEMD_WANTS}+="swupdate-usb@%k.service"
+

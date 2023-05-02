@@ -806,56 +806,25 @@ Properties ``size`` and ``offset`` are optional, all the other properties are ma
     +-------------+----------+----------------------------------------------------+
 
 
-Copy handler
+Rawcopy handler
 ---------------
 
-The copy handler copies one source to a destination. It is a script handler, and no artifact in the SWU is associated
+The rawcopy handler copies one source to a destination. It is a script handler, and no artifact in the SWU is associated
 with the handler.  It can be used to copy configuration data, or parts that should be taken by the current installation.
 It requires the mandatory  property (`copyfrom`), while device contains the destination path. 
 The handler performs a byte copy, and it does not matter which is the source - it can be a file or a partition.
 An optional `type` field can set if the handler is active as pre or postinstall script. If not set, the handler
 is called twice.
 
-.. table:: Attributes for copy handler
-
-    +-------------+----------+----------------------------------------------------+
-    |  Name       |  Type    |  Description                                       |
-    +=============+==========+====================================================+
-    | device      | string   | If set, it is the destination.                     |
-    +-------------+----------+----------------------------------------------------+
-    | type        | string   | One of "preinstall" or "postinstall"               |
-    +-------------+----------+----------------------------------------------------+
-
-
-.. table:: Properties for copy handler
-
-    +-------------+----------+----------------------------------------------------+
-    |  Name       |  Type    |  Description                                       |
-    +=============+==========+====================================================+
-    | size        | string   | Data size (in bytes) to be copied.                 |
-    |             |          | If 0 or not set, the handler will try to find the  |
-    |             |          | size from the device.                              |
-    +-------------+----------+----------------------------------------------------+
-    | chain       | string   | Handler to be called to install the data read      |
-    |             |          | from the "copyfrom" source.                        |
-    +-------------+----------+----------------------------------------------------+
-    | recursive   | string   | Recursive copy if copyfrom is a directory          |
-    |             |          | ("true" or "false")                                |
-    +-------------+----------+----------------------------------------------------+
-    | create-     | string   | Create the destination path if it does not exist   |
-    | destination |          | ("true" or "false")                                |
-    +-------------+----------+----------------------------------------------------+
-
 ::
 
         scripts : (
                 {
                 device = "/dev/mmcblk2p1";
-                type = "copy";
+                type = "rawcopy";
                 properties : {
                         copyfrom = "/dev/mmcblk2p2";
                         type = "postinstall";
-                        chain = "raw";
                 }
         }
 
@@ -1088,8 +1057,8 @@ gpt partition swap
 ------------------
 
 There is a handler gptswap that allow to swap gpt partitions after all the images were flashed.
-This handler only swaps the name of the partition. It coud be useful for a dual bank strategy.
-This handler is a script for the point of view of swupdate, so the node that provides it should
+This handler only swap the name of the partition. It coud be usefull for a dual bank strategy.
+This handler is a script for the point of view of swupdate, so the node that provide it should
 be added in the section scripts.
 
 Simple example:
@@ -1114,7 +1083,7 @@ Diskformat Handler
 This handler checks if the device already has a file system of the specified
 type. (Available only if CONFIG_DISKFORMAT is set.)
 If the file system does not yet exist, it will be created.
-In case an existing file system shall be overwritten, this can be achieved
+In case an existing file system shall be overwitten, this can be achieved
 by setting the property ``force`` to ``true``.
 
 ::
@@ -1237,11 +1206,3 @@ Example:
                 };
         }
 
-Memory issue with zchunk
-------------------------
-
-SWUpdate will create the header from the current version, often from a block partition. As default,
-Zchunk creates a temporary file with all chunks in /tmp, that is at the end concatenated to the
-header and written to the destination file. This means that an amount of memory equal to the
-partition (SWUpdate does not compress the chunks) is required. This was solved with later version
-of Zchunk - check inside zchunk code if ZCK_NO_WRITE is supported.

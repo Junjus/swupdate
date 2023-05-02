@@ -68,40 +68,32 @@ static int grubenv_open(struct grubenv_t *grubenv)
 		goto cleanup;
 	}
 
+	/* truncate header, prepare buf for further splitting */
+	if (!(strtok(buf, "\n"))) {
+		ERROR("grubenv header not found");
+		ret = -1;
+		goto cleanup;
+	}
+
 	/* load key - value pairs from buffer into dictionary list */
 	/* Following approach fails if grubenv block contains empty variable,
 	 * such as `var=`. GRUB env tool allows this situation to happen so it
 	 * should probably be reconsidered. dict_set_value seems to cannot
 	 * assign NULL to a variable, which complicates things a little bit?
 	 */
-	char *entry = buf;
-	char *p_char = buf;
-	while(*p_char != '\0') {
-		if (*p_char != '\n') {
-			p_char++;
-			continue;
-		}
-
-		/* ignore comments */
-		if (*entry == '#') {
-			entry = p_char + 1;
-			p_char++;
-			continue;
-		}
-
-		key = strtok(entry, "=");
+	do {
+		key = strtok(NULL, "=");
 		value = strtok(NULL, "\n");
-		if (value != NULL && key != NULL) {
-			ret = dict_set_value(&grubenv->vars, key, value);
-			if (ret) {
-				ERROR("Adding pair [%s] = %s into dictionary list"
-					"failed\n", key, value);
-				return ret;
-			}
+		/* value is null if we are at the last line (# characters) */
+		if (!value || !key)
+			continue;
+		ret = dict_set_value(&grubenv->vars, key, value);
+		if (ret) {
+			ERROR("Adding pair [%s] = %s into dictionary list"
+				"failed\n", key, value);
+			return ret;
 		}
-		entry = p_char + 1;
-		p_char++;
-	}
+	} while (value && key);
 
 cleanup:
 	if (fp) fclose(fp);

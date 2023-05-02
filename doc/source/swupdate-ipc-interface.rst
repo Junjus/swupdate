@@ -300,7 +300,8 @@ If configured (see post update command), this request will restart the device.
 WebSocket API
 -------------
 
-The integrated Webserver exposes a WebSocket API. The WebSocket protocol specification defines ws (WebSocket) and wss (WebSocket Secure) as two new uniform resource identifier (URI) schemes that are used for unencrypted and encrypted connections, respectively and both of them are supported by SWUpdate.
+The integrated Webserver exposes a WebSocket API. The WebSocket protocol specification defines ws (WebSocket) and wss (WebSocket Secure) as two new uniform resource identifier (URI) schemes that are used for unencrypted and encrypted con
+nections, respectively and both of them are supported by SWUpdate.
 A WebSocket provides full-duplex communication but it is used in SWUpdate to send events to an external host after
 each change in the update process. The Webserver sends JSON formatted responses as results of internal events.
 
@@ -335,8 +336,6 @@ This event is sent when the internal SWUpdate status change. Following status ar
         START
         RUN
         SUCCESS
-        FAILURE
-        DONE
 
 
 Example:

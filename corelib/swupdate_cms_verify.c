@@ -22,7 +22,6 @@
 #define VERIFY_UNKNOWN_SIGNER_FLAGS (0)
 #endif
 
-#ifndef CONFIG_CMS_IGNORE_CERTIFICATE_PURPOSE
 int check_code_sign(const X509_PURPOSE *xp, const X509 *crt, int ca)
 {
 	X509 *x = (X509 *)crt;
@@ -48,7 +47,6 @@ int check_code_sign(const X509_PURPOSE *xp, const X509 *crt, int ca)
 
 	return (ex_flags & EXFLAG_XKUSAGE) && (ex_xkusage & XKU_CODE_SIGN);
 }
-#endif
 
 static int cms_verify_callback(int ok, X509_STORE_CTX *ctx) {
 	int cert_error = X509_STORE_CTX_get_error(ctx);

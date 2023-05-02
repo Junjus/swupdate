@@ -6,13 +6,13 @@
  */
 
 /*
- * This handler allows SWUpdate to update the firmware on a microcontroller
+ * This handler allows to update the firmware on a microcontroller
  * connected to the main controller via UART.
  * Parameters for setup are passed via
- * sw-description file. Its behavior can be extended to be
+ * sw-description file. It behavior can be extended to be
  * more general.
  * The protocol is ASCII based. There is a sequence to be done
- * to put the microcontroller in programming mode. After that
+ * to put the microcontroller in programming mode, after that
  * the handler sends the data and waits for an ACK from the
  * microcontroller.
  *

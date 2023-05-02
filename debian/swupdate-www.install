@@ -1,0 +1,5 @@
+web-app/css          /usr/share/swupdate/www
+web-app/images       /usr/share/swupdate/www
+web-app/index.html   /usr/share/swupdate/www
+web-app/js           /usr/share/swupdate/www
+web-app/node_modules /usr/share/swupdate/www

@@ -1,0 +1,28 @@
+DPKG BUILD PROFILES
+===================
+There are some custom build profiles that are disabled by default:
+
+pkg.swupdate.bpo
+Build a backport friendly version of the package with some default features
+disabled that would require unavailable dependencies.
+Currently this targets bullseye.
+
+pkg.swupdate.p11
+Enable using PKCS#11 for AES decryption
+instead of having the plain key available in a file.
+
+pkg.swupdate.nohwcompat
+Disable the comparison with the hardware compatibility file /etc/hwrevision.
+
+pkg.swupdate.nosigning
+Disable Cryptographic Message Syntax (CMS) signature verification on SWU files.
+Cryptographic hash verification (integrity) is still enabled with this set.
+Please only use this when you can ensure authenticity in some other way.
+
+pkg.swupdate.noswuforwarder
+Disable the SWU forwarder. This gets rid of the libwebsockets dependency.
+
+EXAMPLES
+========
+/usr/share/doc/swupdate/examples/udev holds an example on how to make SWUpdate
+trigger installing updates on inserting USB flash drives with SWU files on them.

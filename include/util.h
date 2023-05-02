@@ -83,8 +83,6 @@ typedef void (*notifier) (RECOVERY_STATUS status, int error, int level, const ch
 void notify(RECOVERY_STATUS status, int error, int level, const char *msg);
 void notify_init(void);
 void notifier_set_color(int level, char *col);
-
-#define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 #define swupdate_notify(status, format, level, arg...) do { \
 	if (loglevel >= level) { \
 		char tmpbuf[NOTIFY_BUF_SIZE]; \
@@ -92,7 +90,7 @@ void notifier_set_color(int level, char *col);
 			if (loglevel >= DEBUGLEVEL) \
 				snprintf(tmpbuf, sizeof(tmpbuf), \
 				     	"ERROR %s : %s : %d : " format, \
-						__FILENAME__, \
+					       	__FILE__, \
 					       	__func__, \
 					       	__LINE__, \
 						## arg); \
@@ -167,6 +165,7 @@ bool strtobool(const char *s);
 typedef int (*writeimage) (void *out, const void *buf, size_t len);
 
 void *saferealloc(void *ptr, size_t size);
+int openfile(const char *filename);
 int copy_write(void *out, const void *buf, size_t len);
 #if defined(__FreeBSD__)
 int copy_write_padded(void *out, const void *buf, size_t len);

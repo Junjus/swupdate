@@ -14,23 +14,15 @@ config BOOTLOADER_NONE
 
 config BOOTLOADER_EBG
 	bool "EFI Boot Guard"
-	depends on HAVE_LIBEBGENV
 	help
 	  Support for EFI Boot Guard
 	  https://github.com/siemens/efibootguard
 
-comment "EFI Boot Guard needs libebgenv and libz"
-	depends on !HAVE_ZLIB || !HAVE_LIBEBGENV
-
 config UBOOT
 	bool "U-Boot"
-	depends on HAVE_LIBUBOOTENV
 	help
 	  Support for U-Boot
 	  https://www.denx.de/wiki/U-Boot
-
-comment "U-Boot needs libubootenv"
-	depends on !HAVE_LIBUBOOTENV
 
 config UBOOT_FWENV
 	string "U-Boot Environment Configuration file"
@@ -106,22 +98,17 @@ config BOOTLOADER_DEFAULT_NONE
 
 endchoice
 
-config BOOTLOADER_STATIC_LINKED
-	bool "Bootloader interface static linked"
-	help
-	  Link statically the interface to the bootloader. In case of distros,
-	  more interfaces are available at the same time and SWUpdate checks
-	  at runtime and loads the interface via dlopen(). This is available
-	  with glibc and dlopen support. For other system, the interface can be linked
-	  statically.
-
-
 choice
 	prompt "Update Status Storage"
 	help
 	  Place to persistently store the update
 	  status for, e.g., communicating it to SWUpdate after
 	  a reboot.
+
+config UPDATE_STATE_CHOICE_NONE
+	bool "None"
+	help
+	  Do not store update status.
 
 config UPDATE_STATE_CHOICE_BOOTLOADER
 	bool "Bootloader"
